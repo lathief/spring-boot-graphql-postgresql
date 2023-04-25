@@ -15,6 +15,6 @@ input AuthorInput {
 
 extend type Mutation {
     newAuthor(author: AuthorInput!): Author
-    updateAuthor(author: AuthorInput!): Author
+    updateAuthor(id: ID!, author: AuthorInput!): Author
     deleteAuthor(id: ID!): Boolean
 }

@@ -9,7 +9,7 @@ type Book {
 
 type Query {
     books: [Book]
-    books(title: String!): [Book]
+    searchBooks(title: String!): [Book]
     book(id: ID!): Book!
 }
 
