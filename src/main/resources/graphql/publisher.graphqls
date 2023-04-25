@@ -17,6 +17,6 @@ input PublisherInput {
 
 extend type Mutation {
     newPublisher(publisher: PublisherInput!): Publisher
-    updatePublisher(publisher: PublisherInput!): Publisher
+    updatePublisher(id: ID!, publisher: PublisherInput!): Publisher
     deletePublisher(id: ID!): Boolean
 }
