@@ -15,7 +15,6 @@ public class BookInput {
     private String description;
     private Integer year;
     private Integer price;
-    private String genre;
     private Long authorId;
     private Long publisherId;
 }
