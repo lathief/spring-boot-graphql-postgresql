@@ -24,6 +24,15 @@ public class Book {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "year")
+    private Integer year;
+
+    @Column(name = "price")
+    private Integer price;
+
+    @Column(name = "genre")
+    private String genre;
+
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
     private Author author;

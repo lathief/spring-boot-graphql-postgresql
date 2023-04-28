@@ -1,5 +1,7 @@
 package com.lathief.graphqldemo.controller;
 
+import com.lathief.graphqldemo.filter.BookFilter;
+import com.lathief.graphqldemo.filter.FilterField;
 import com.lathief.graphqldemo.model.*;
 import com.lathief.graphqldemo.repository.AuthorRepository;
 import com.lathief.graphqldemo.repository.BookRepository;
@@ -31,9 +33,7 @@ public class BookController {
         this.publisherRepository = publisherRepository;
         this.authorRepository = authorRepository;
     }
-//    newBook(book: BookInput!): Book
-//    updateBook(id: ID!, book: BookInput!): Book
-//    deleteBook(id: ID!): Boolean
+
     @QueryMapping
     public Iterable<Book> books(DataFetchingEnvironment environment) {
         DataFetchingFieldSelectionSet s = environment.getSelectionSet();
@@ -59,7 +59,31 @@ public class BookController {
             spec = spec.and(fetchAuthor());
         return bookRepository.findOne(spec).orElseThrow(NoSuchElementException::new);
     }
+    @QueryMapping
+    public Iterable<Book> searchBooks(@Argument String title) {
+        System.out.println(title);
+        return bookRepository.findByTitleContaining(title);
+    }
+    @QueryMapping
+    public Iterable<Book> booksWithFilter(@Argument BookFilter filter) {
+        Specification<Book> spec = null;
+        if (filter.getYear() != null)
+            spec = byYear(filter.getYear());
+        if (filter.getPrice() != null)
+            spec = (spec == null ? byPrice(filter.getPrice()) : spec.and(byPrice(filter.getPrice())));
+        if (spec != null)
+            return bookRepository.findAll(spec);
+        else
+            return bookRepository.findAll();
+    }
 
+    private Specification<Book> byYear(FilterField filterField) {
+        return (root, query, builder) -> filterField.generateCriteria(builder, root.get("year"));
+    }
+
+    private Specification<Book> byPrice(FilterField filterField) {
+        return (root, query, builder) -> filterField.generateCriteria(builder, root.get("price"));
+    }
     @MutationMapping
     public Book newBook(@Argument BookInput book) {
         Book bookSave = new Book();
@@ -70,6 +94,9 @@ public class BookController {
         bookSave.setTitle(book.getTitle());
         bookSave.setIsbn(book.getIsbn());
         bookSave.setDescription(book.getDescription());
+        bookSave.setYear(book.getYear());
+        bookSave.setPrice(book.getPrice());
+        bookSave.setGenre(book.getGenre());
         return bookRepository.save(bookSave);
     }
 
@@ -95,6 +122,12 @@ public class BookController {
             bookUpdate.setIsbn(book.getIsbn());
         } if (book.getDescription() != null) {
             bookUpdate.setDescription(book.getDescription());
+        } if (book.getYear() != null) {
+            bookUpdate.setYear(book.getYear());
+        } if (book.getPrice() != null) {
+            bookUpdate.setPrice(book.getPrice());
+        } if (book.getGenre() != null) {
+            bookUpdate.setGenre(book.getGenre());
         }
         return bookRepository.save(bookUpdate);
     }
