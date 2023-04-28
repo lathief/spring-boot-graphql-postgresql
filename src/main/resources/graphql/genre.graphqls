@@ -1,0 +1,19 @@
+type Genre {
+    id: ID!
+    name: String!
+    books: [Book]
+}
+
+extend type Query {
+    genres: [Genre]
+    genre(id: ID!): Genre!
+}
+
+input GenreInput {
+    name: String!
+}
+
+extend type Mutation {
+    newGenre(genre: GenreInput!): Genre
+    addGenreToBook(bookid: ID!, genre: [GenreInput!]): Book
+}

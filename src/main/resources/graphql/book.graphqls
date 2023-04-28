@@ -5,7 +5,7 @@ type Book {
     description : String
     year: Int
     price: Int
-    genre: String
+    genres: [Genre]
     author: Author
     publisher: Publisher
 }
@@ -23,7 +23,6 @@ input BookInput {
     description : String
     year: Int
     price: Int
-    genre: String
     authorId: Int
     publisherId: Int
 }
