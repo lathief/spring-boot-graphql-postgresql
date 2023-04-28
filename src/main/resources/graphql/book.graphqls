@@ -3,6 +3,9 @@ type Book {
     title: String!
     isbn: String!
     description : String
+    year: Int
+    price: Int
+    genre: String
     author: Author
     publisher: Publisher
 }
@@ -10,6 +13,7 @@ type Book {
 type Query {
     books: [Book]
     searchBooks(title: String!): [Book]
+    booksWithFilter(filter: BookFilter): [Book]
     book(id: ID!): Book!
 }
 
@@ -17,8 +21,21 @@ input BookInput {
     title: String!
     isbn: String!
     description : String
+    year: Int
+    price: Int
+    genre: String
     authorId: Int
     publisherId: Int
+}
+
+input BookFilter {
+    year: FilterField
+    price: FilterField
+}
+
+input FilterField {
+    operator: String!
+    value: String!
 }
 
 type Mutation {
