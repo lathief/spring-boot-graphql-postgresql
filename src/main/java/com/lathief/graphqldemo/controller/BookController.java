@@ -37,7 +37,7 @@ public class BookController {
     @QueryMapping
     public Iterable<Book> books(DataFetchingEnvironment environment) {
         DataFetchingFieldSelectionSet s = environment.getSelectionSet();
-        List<Specification<Author>> specifications = new ArrayList<>();
+        List<Specification<Book>> specifications = new ArrayList<>();
         if (s.contains("author") && !s.contains("publisher"))
             return bookRepository.findAll(fetchAuthor());
         else if (s.contains("publisher") && !s.contains("author"))
@@ -96,7 +96,6 @@ public class BookController {
         bookSave.setDescription(book.getDescription());
         bookSave.setYear(book.getYear());
         bookSave.setPrice(book.getPrice());
-        bookSave.setGenre(book.getGenre());
         return bookRepository.save(bookSave);
     }
 
@@ -126,8 +125,6 @@ public class BookController {
             bookUpdate.setYear(book.getYear());
         } if (book.getPrice() != null) {
             bookUpdate.setPrice(book.getPrice());
-        } if (book.getGenre() != null) {
-            bookUpdate.setGenre(book.getGenre());
         }
         return bookRepository.save(bookUpdate);
     }
