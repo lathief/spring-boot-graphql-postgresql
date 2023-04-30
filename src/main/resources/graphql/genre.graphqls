@@ -7,6 +7,7 @@ type Genre {
 extend type Query {
     genres: [Genre]
     genre(id: ID!): Genre!
+    getBookSpesificGenres(genre:[GenreInput!]): [Book]
 }
 
 input GenreInput {
@@ -15,5 +16,5 @@ input GenreInput {
 
 extend type Mutation {
     newGenre(genre: GenreInput!): Genre
-    addGenreToBook(bookid: ID!, genre: [GenreInput!]): Book
+    addGenreToBook(bookid: ID!, genres: [GenreInput!]): Book
 }

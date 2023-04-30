@@ -1,5 +1,6 @@
 package com.lathief.graphqldemo.controller;
 
+import com.lathief.graphqldemo.filter.FilterField;
 import com.lathief.graphqldemo.model.*;
 import com.lathief.graphqldemo.repository.AuthorRepository;
 import com.lathief.graphqldemo.repository.BookRepository;
@@ -7,6 +8,9 @@ import com.lathief.graphqldemo.repository.GenreRepository;
 import com.lathief.graphqldemo.repository.PublisherRepository;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
+import lombok.NonNull;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -17,6 +21,7 @@ import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class GenreController {
@@ -63,9 +68,9 @@ public class GenreController {
     }
 
     @MutationMapping
-    public Book addGenreToBook(@Argument Long id, @Argument Iterable<GenreInput> genres) {
-        Set<Genre> genresToAdd = new HashSet<>();
-        if (!bookRepository.existsById(id)) {
+    public Book addGenreToBook(@Argument Long bookid, @Argument @NonNull List<GenreInput> genres) {
+        List<Genre> genresToAdd = new ArrayList<>();
+        if (!bookRepository.existsById(bookid)) {
             return null;
         }
 
@@ -80,12 +85,36 @@ public class GenreController {
                 genresToAdd.add(genre);
             }
         }
-        Book getBook = bookRepository.findById(id).get();
+        Book getBook = bookRepository.findById(bookid).get();
 
         getBook.setGenres(genresToAdd);
         return bookRepository.save(getBook);
     }
+    @QueryMapping
+    public Iterable<Book> getBookSpesificGenres(@Argument @NonNull List<GenreInput> genre,
+                                            DataFetchingEnvironment dataFetchingEnvironment) {
+        List<Book> resultBooks = new ArrayList<>();
+        List<Book> result = new ArrayList<>();
+        List<Genre> genres = new ArrayList<>();
+        Specification<Genre> spec = null;
+        for (GenreInput g : genre) {
+            DataFetchingFieldSelectionSet s = dataFetchingEnvironment.getSelectionSet();
+            spec = byGenre(g.getName());
+            genres.addAll(genreRepository.findAll(spec));
+        }
+        for ( Genre input : genres) {
+            resultBooks.addAll(input.getBooks());
+        }
+        Set<String> bookNames = new HashSet<>();
+        for (Book r: resultBooks){
+            bookNames.add(r.getTitle());
 
+        }
+        for (String n: bookNames){
+            result.add(bookRepository.findByTitle(n));
+        }
+        return result;
+    }
     private Specification<Genre> fetchBook() {
         return (root, query, builder) -> {
             Fetch<Genre, Book> f = root
@@ -96,5 +125,10 @@ public class GenreController {
     }
     private Specification<Genre> byId(Long id) {
         return (root, query, builder) -> builder.equal(root.get("id"), id);
+    }
+    private Specification<Genre> byGenre(String name) {
+        return (root, query, builder) -> {
+            return builder.equal(root.get("name"), name);
+        };
     }
 }
