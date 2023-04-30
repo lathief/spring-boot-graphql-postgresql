@@ -6,7 +6,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -24,5 +26,14 @@ public class Genre {
             cascade = CascadeType.ALL,
             mappedBy = "genres")
     @JsonIgnore
-    private Set<Book> books = new HashSet<>();
+    private List<Book> books = new ArrayList<>();
+
+    public Genre(String name) {
+        this.name = name;
+    }
+
+    public Genre(String name, List<Book> books) {
+        this.name = name;
+        this.books = books;
+    }
 }

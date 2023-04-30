@@ -21,6 +21,11 @@ public class Publisher {
     @OneToMany(mappedBy = "publisher")
     private Set<Book> books;
 
+    public Publisher(String name, String address) {
+        this.name = name;
+        this.address = address;
+    }
+
     public Publisher(String name, Set<Book> books) {
         this.name = name;
         this.books = books;

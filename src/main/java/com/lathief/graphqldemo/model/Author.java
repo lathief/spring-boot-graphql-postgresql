@@ -20,6 +20,9 @@ public class Author {
     private String name;
     @OneToMany(mappedBy = "author")
     private Set<Book> books;
+    public Author(String name){
+        this.name = name;
+    }
 
     public Author(String name, Set<Book> books) {
         this.name = name;
