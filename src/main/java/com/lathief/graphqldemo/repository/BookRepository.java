@@ -10,4 +10,5 @@ import java.util.List;
 
 public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificationExecutor<Book> {
     List<Book> findByTitleContaining(String title);
+    Book findByTitle(String title);
 }
