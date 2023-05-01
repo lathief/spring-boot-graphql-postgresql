@@ -1,6 +1,7 @@
 package com.lathief.graphqldemo.controller;
 
 import com.lathief.graphqldemo.model.*;
+import com.lathief.graphqldemo.repository.BookRepository;
 import com.lathief.graphqldemo.repository.PublisherRepository;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
@@ -15,21 +16,32 @@ import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @Controller
 public class PublisherController {
     PublisherRepository publisherRepository;
+    BookRepository bookRepository;
 
-    PublisherController(PublisherRepository publisherRepository) {
+    PublisherController(PublisherRepository publisherRepository, BookRepository bookRepository) {
         this.publisherRepository = publisherRepository;
+        this.bookRepository = bookRepository;
     }
     @QueryMapping
     public Iterable<Publisher> publishers(DataFetchingEnvironment environment) {
         DataFetchingFieldSelectionSet s = environment.getSelectionSet();
         List<Specification<Author>> specifications = new ArrayList<>();
-        if (s.contains("books"))
-            return publisherRepository.findAll((Sort) fetchBook());
+        if (s.contains("books")){
+            List<Publisher> temp = publisherRepository.findAll(fetchBook());
+            Set<String> set = new HashSet<>(temp.size());
+            temp.removeIf(p -> !set.add(p.getName()));
+            return temp;
+        }
         else
             return publisherRepository.findAll();
     }
@@ -78,7 +90,7 @@ public class PublisherController {
     private Specification<Publisher> fetchBook() {
         return (root, query, builder) -> {
             Fetch<Publisher, Book> f = root
-                    .fetch("books", JoinType.LEFT);
+                    .fetch("books", JoinType.INNER);
             Join<Publisher, Book> join = (Join<Publisher, Book>) f;
             return join.getOn();
         };

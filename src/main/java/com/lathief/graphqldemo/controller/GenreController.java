@@ -44,14 +44,17 @@ public class GenreController {
     public Iterable<Genre> genres(DataFetchingEnvironment environment) {
         DataFetchingFieldSelectionSet s = environment.getSelectionSet();
         List<Specification<Genre>> specifications = new ArrayList<>();
-        if (s.contains("books"))
-            return genreRepository.findAll(fetchBook());
+        if (s.contains("books")){
+            List<Genre> temp = genreRepository.findAll(fetchBook());
+            Set<String> set = new HashSet<>(temp.size());
+            temp.removeIf(p -> !set.add(p.getName()));
+            return temp;
+        }
         else
             return genreRepository.findAll();
     }
     @QueryMapping
     public Genre genre(@Argument Long id, DataFetchingEnvironment environment) {
-        System.out.println(id);
         Specification<Genre> spec = byId(id);
         DataFetchingFieldSelectionSet selectionSet = environment
                 .getSelectionSet();
@@ -95,6 +98,7 @@ public class GenreController {
                                             DataFetchingEnvironment dataFetchingEnvironment) {
         List<Book> resultBooks = new ArrayList<>();
         List<Book> result = new ArrayList<>();
+        List<Book> filterResult = new ArrayList<>();
         List<Genre> genres = new ArrayList<>();
         Specification<Genre> spec = null;
         for (GenreInput g : genre) {
@@ -108,17 +112,29 @@ public class GenreController {
         Set<String> bookNames = new HashSet<>();
         for (Book r: resultBooks){
             bookNames.add(r.getTitle());
-
         }
         for (String n: bookNames){
             result.add(bookRepository.findByTitle(n));
         }
-        return result;
+        for (Book r: result) {
+            int i = 0;
+            for (Genre n: r.getGenres()){
+                for (GenreInput g : genre) {
+                    if (g.getName().equals(n.getName())){
+                        i++;
+                    }
+                }
+            }
+            if (i == genre.size()) {
+                filterResult.add(r);
+            }
+        }
+        return filterResult;
     }
     private Specification<Genre> fetchBook() {
         return (root, query, builder) -> {
             Fetch<Genre, Book> f = root
-                    .fetch("books", JoinType.LEFT);
+                    .fetch("books", JoinType.INNER);
             Join<Genre, Book> join = (Join<Genre, Book>) f;
             return join.getOn();
         };

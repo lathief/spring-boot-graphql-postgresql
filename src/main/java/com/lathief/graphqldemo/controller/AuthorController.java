@@ -3,6 +3,7 @@ package com.lathief.graphqldemo.controller;
 import com.lathief.graphqldemo.model.Author;
 import com.lathief.graphqldemo.model.AuthorInput;
 import com.lathief.graphqldemo.model.Book;
+import com.lathief.graphqldemo.model.Genre;
 import com.lathief.graphqldemo.repository.AuthorRepository;
 import com.lathief.graphqldemo.repository.BookRepository;
 import graphql.schema.DataFetchingEnvironment;
@@ -20,7 +21,9 @@ import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 public class AuthorController {
@@ -36,8 +39,12 @@ public class AuthorController {
     public Iterable<Author> authors(DataFetchingEnvironment environment) {
         DataFetchingFieldSelectionSet s = environment.getSelectionSet();
         List<Specification<Author>> specifications = new ArrayList<>();
-        if (s.contains("books"))
-            return authorRepository.findAll(fetchBook());
+        if (s.contains("books")){
+            List<Author> temp = authorRepository.findAll(fetchBook());
+            Set<String> set = new HashSet<>(temp.size());
+            temp.removeIf(p -> !set.add(p.getName()));
+            return temp;
+        }
         else
             return authorRepository.findAll();
     }

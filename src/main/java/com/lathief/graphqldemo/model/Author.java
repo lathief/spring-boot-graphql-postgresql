@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -19,12 +20,12 @@ public class Author {
     @Column(name = "name_author", nullable = false)
     private String name;
     @OneToMany(mappedBy = "author")
-    private Set<Book> books;
+    private List<Book> books;
     public Author(String name){
         this.name = name;
     }
 
-    public Author(String name, Set<Book> books) {
+    public Author(String name, List<Book> books) {
         this.name = name;
         this.books = books;
     }
