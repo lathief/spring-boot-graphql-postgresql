@@ -16,6 +16,7 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.Join;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 @Controller
+@Transactional
 public class AuthorController {
     AuthorRepository authorRepository;
     BookRepository bookRepository;
@@ -80,6 +82,11 @@ public class AuthorController {
     public Boolean deleteAuthor(@Argument Long id) {
         if (!authorRepository.existsById(id)){
             return false;
+        }
+        List<Book> books = bookRepository.findBookByAuthorId(id);
+        System.out.println(books.size());
+        if (books != null) {
+            bookRepository.deleteAll(books);
         }
         authorRepository.deleteById(id);
         return true;
