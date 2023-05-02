@@ -3,6 +3,8 @@ package com.lathief.graphqldemo.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -34,15 +36,15 @@ public class Book {
     @Column(name = "price")
     private Integer price;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "author_id", nullable = false)
+    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST})
+    @JoinColumn(name = "author_id")
     private Author author;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "publisher_id", nullable = false)
+    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST})
+    @JoinColumn(name = "publisher_id")
     private Publisher publisher;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(name = "book_genre",
             joinColumns = { @JoinColumn(name = "book_id") },
             inverseJoinColumns = { @JoinColumn(name = "genre_id") })
