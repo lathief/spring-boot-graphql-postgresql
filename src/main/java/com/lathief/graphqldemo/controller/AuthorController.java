@@ -53,6 +53,9 @@ public class AuthorController {
 
     @QueryMapping
     public Author author(@Argument Long id, DataFetchingEnvironment environment) {
+        if (!authorRepository.existsById(id)) {
+            return null;
+        }
         Specification<Author> spec = byId(id);
         DataFetchingFieldSelectionSet s = environment.getSelectionSet();
         List<Specification<Author>> specifications = new ArrayList<>();
