@@ -11,6 +11,8 @@ import org.springframework.graphql.test.tester.GraphQlTester;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureGraphQlTester
 public class BooksControllerTest {
@@ -24,7 +26,7 @@ public class BooksControllerTest {
                 .path("books[*]")
                 .entityList(Book.class)
                 .get();
-        Assertions.assertTrue(books.size() > 0);
+        assertTrue(books.size() > 0);
         Assertions.assertNotNull(books.get(0).getId());
         Assertions.assertNotNull(books.get(0).getTitle());
         Assertions.assertNotNull(books.get(0).getDescription());
@@ -32,16 +34,16 @@ public class BooksControllerTest {
     @Test
     void findById() {
         String query = "query { book(id: 1) { id title description genres { name } } }";
-        Book Book = graphQlTest.document(query)
+        Book book = graphQlTest.document(query)
                 .execute()
                 .path("book")
                 .entity(Book.class)
                 .get();
-        Assertions.assertNotNull(Book);
-        Assertions.assertNotNull(Book.getId());
-        Assertions.assertNotNull(Book.getTitle());
-        Assertions.assertNotNull(Book.getDescription());
-        Assertions.assertTrue(Book.getGenres().size() > 0);
+        Assertions.assertNotNull(book);
+        Assertions.assertNotNull(book.getId());
+        Assertions.assertNotNull(book.getTitle());
+        Assertions.assertNotNull(book.getDescription());
+        assertTrue(book.getGenres().size() > 0);
     }
     @Test
     void insertBook() {
@@ -80,6 +82,46 @@ public class BooksControllerTest {
                 .path("deleteBook")
                 .entity(Boolean.class)
                 .get();
-        Assertions.assertTrue(result);
+        assertTrue(result);
+    }
+
+    @Test
+    void searchBooks(){
+        String query = "query { searchBooks(title:\"Book\"){ title isbn description } }";
+        List<Book> books = graphQlTest.document(query)
+                .execute()
+                .path("searchBooks")
+                .entityList(Book.class)
+                .get();
+        Assertions.assertNotNull(books);
+        assertTrue(books.size() > 0);
+        books.forEach(b -> assertTrue(b.getTitle().contains("Book")));
+    }
+    @Test
+    void booksWithFilter(){
+        //get all books with year greater than "2015"
+        String query = "query {" +
+                "    booksWithFilter(" +
+                "        filter:{" +
+                "            year:{" +
+                "                operator:\"gt\"" +
+                "                value:\"2015\"" +
+                "            }" +
+                "        }" +
+                "    ) {" +
+                "        title" +
+                "        isbn" +
+                "        year" +
+                "        description" +
+                "    }" +
+                "}";
+        List<Book> books = graphQlTest.document(query)
+                .execute()
+                .path("booksWithFilter")
+                .entityList(Book.class)
+                .get();
+        Assertions.assertNotNull(books);
+        assertTrue(books.size() > 0);
+        books.forEach(b -> assertTrue(b.getYear() > 2015));
     }
 }
