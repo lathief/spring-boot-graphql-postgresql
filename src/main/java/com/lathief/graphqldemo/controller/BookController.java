@@ -87,8 +87,14 @@ public class BookController {
         return (root, query, builder) -> filterField.generateCriteria(builder, root.get("price"));
     }
     @MutationMapping
-    public Book newBook(@Argument BookInput book) {
+    public Book newBook(@Argument BookInput book) throws Exception {
         Book bookSave = new Book();
+        if (!authorRepository.existsById(book.getAuthorId())){
+            throw new Exception("Author not found");
+        }
+        if (!publisherRepository.existsById(book.getPublisherId())){
+            throw new Exception("Author not found");
+        }
         Author author = authorRepository.findById(book.getAuthorId()).get();
         Publisher publisher = publisherRepository.findById(book.getPublisherId()).get();
         bookSave.setAuthor(author);
