@@ -82,6 +82,11 @@ public class PublisherController {
         if (!publisherRepository.existsById(id)){
             return false;
         }
+        List<Book> books = bookRepository.findBookByAuthorId(id);
+        System.out.println(books.size());
+        if (books != null) {
+            bookRepository.deleteAll(books);
+        }
         publisherRepository.deleteById(id);
         return true;
     }
