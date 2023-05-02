@@ -14,5 +14,7 @@ public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificat
     List<Book> findByTitleContaining(String title);
     Book findByTitle(String title);
     @Query(nativeQuery = true, value = "SELECT * FROM book WHERE publisher_id = ?1")
-    List<Book> findBookByPublisher(Long id);
+    List<Book> findBookByPublisherId(Long id);
+    @Query(nativeQuery = true, value = "SELECT * FROM book WHERE author_id = ?1")
+    List<Book> findBookByAuthorId(Long id);
 }
