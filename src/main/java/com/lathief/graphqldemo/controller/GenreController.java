@@ -16,6 +16,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.Join;
@@ -24,6 +25,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
+@Transactional
 public class GenreController {
     BookRepository bookRepository;
     PublisherRepository publisherRepository;
@@ -36,10 +38,7 @@ public class GenreController {
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
     }
-//    newGenre
-//            addGenreToBook
-//    genres
-//            genre
+
     @QueryMapping
     public Iterable<Genre> genres(DataFetchingEnvironment environment) {
         DataFetchingFieldSelectionSet s = environment.getSelectionSet();
